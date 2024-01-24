@@ -1,0 +1,143 @@
+# Income Statement Analysis
+-- Create the income_statement table
+CREATE TABLE income_statement (
+    period INT,
+    revenue DECIMAL(12,2),
+    operating_income DECIMAL(12,2),
+    net_income DECIMAL(12,2)
+); 
+
+-- Insert sample data into the income_statement table
+INSERT INTO income_statement (period, revenue, operating_income, net_income)
+VALUES
+    (2019, 500000, 100000, 80000),
+    (2020, 550000, 120000, 90000),
+    (2021, 600000, 130000, 95000);
+
+-- Calculate revenue growth over multiple periods
+SELECT
+    period,
+    revenue,
+    (revenue - LAG(revenue) OVER (ORDER BY period)) / LAG(revenue) OVER (ORDER BY period) AS revenue_growth
+FROM
+    income_statement
+ORDER BY
+    period;
+
+-- Calculate operating margin
+SELECT
+    period,
+    operating_income,
+    revenue,
+    operating_income / revenue AS operating_margin
+FROM
+    income_statement
+ORDER BY
+    period;
+
+-- Assess net income and compare to previous periods and industry peers
+SELECT
+    period,
+    net_income
+FROM
+    income_statement
+ORDER BY
+    period;
+
+# Balance Sheet Analysis
+-- Create the Assets table
+CREATE TABLE Assets (
+  AssetName VARCHAR(50),
+  Amount DECIMAL(10, 2)
+);
+
+-- Insert data into the Assets table
+INSERT INTO Assets (AssetName, Amount)
+VALUES
+  ('Cash', 100000),
+  ('Accounts Receivable', 150000),
+  ('Inventory', 200000),
+  ('Property, Plant, and Equipment', 500000);
+
+-- Create the Liabilities table
+CREATE TABLE Liabilities (
+  LiabilityName VARCHAR(50),
+  Amount DECIMAL(10, 2)
+);
+
+-- Insert data into the Liabilities table
+INSERT INTO Liabilities (LiabilityName, Amount)
+VALUES
+  ('Accounts Payable', 50000),
+  ('Notes Payable', 100000),
+  ('Long-term Debt', 400000);
+
+-- Create the Equity table
+CREATE TABLE Equity (
+  EquityName VARCHAR(50),
+  Amount DECIMAL(10, 2)
+);
+
+-- Insert data into the Equity table
+INSERT INTO Equity (EquityName, Amount)
+VALUES
+  ('Common Stock', 200000),
+  ('Retained Earnings', 200000);
+
+-- Calculate liquidity ratios
+SELECT
+  (SELECT SUM(Amount) FROM Assets WHERE AssetName IN ('Cash', 'Accounts Receivable', 'Inventory')) / 
+  (SELECT SUM(Amount) FROM Liabilities WHERE LiabilityName IN ('Accounts Payable', 'Notes Payable')) AS CurrentRatio,
+  ((SELECT SUM(Amount) FROM Assets WHERE AssetName IN ('Cash', 'Accounts Receivable')) - 
+  (SELECT Amount FROM Assets WHERE AssetName = 'Inventory')) / 
+  (SELECT SUM(Amount) FROM Liabilities WHERE LiabilityName IN ('Accounts Payable', 'Notes Payable')) AS QuickRatio;
+
+-- Calculate debt-to-equity ratio
+SELECT 
+  (SELECT SUM(Amount) FROM Liabilities) / (SELECT SUM(Amount) FROM Equity) AS DebtToEquityRatio;
+
+-- Calculate asset turnover ratio
+SELECT 
+  1000000 / ((SELECT SUM(Amount) FROM Assets) / 2) AS AssetTurnoverRatio;
+
+# Cash Flow Statement Analysis
+-- Create the CashFlowStatement table
+CREATE TABLE CashFlowStatement (
+  Category VARCHAR(50),
+  Amount DECIMAL(10, 2)
+);
+
+-- Insert data into the CashFlowStatement table for Operating Activities
+INSERT INTO CashFlowStatement (Category, Amount)
+VALUES
+  ('Net Income', 500000),
+  ('Depreciation and Amortization', 100000),
+  ('Changes in Working Capital', 50000),
+  ('Net Cash Provided by Operating Activities', 650000);
+
+-- Insert data into the CashFlowStatement table for Investing Activities
+INSERT INTO CashFlowStatement (Category, Amount)
+VALUES
+  ('Purchase of Property, Plant, and Equipment', -300000),
+  ('Purchase of Investments', -200000),
+  ('Sale of Investments', 150000),
+  ('Net Cash Used in Investing Activities', -350000);
+
+-- Insert data into the CashFlowStatement table for Financing Activities
+INSERT INTO CashFlowStatement (Category, Amount)
+VALUES
+  ('Issuance of Common Stock', 100000),
+  ('Issuance of Long-term Debt', 400000),
+  ('Repayment of Long-term Debt', -250000),
+  ('Dividends Paid', -100000),
+  ('Net Cash Provided by Financing Activities', 150000);
+
+-- Insert data into the CashFlowStatement table for Net Increase in Cash and Cash at Beginning/End of Period
+INSERT INTO CashFlowStatement (Category, Amount)
+VALUES
+  ('Net Increase in Cash', 450000),
+  ('Cash at Beginning of Period', 200000),
+  ('Cash at End of Period', 650000);
+
+-- Query the CashFlowStatement table to retrieve the cash flow statement
+SELECT * FROM CashFlowStatement;
