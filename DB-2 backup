@@ -1,0 +1,7 @@
+CREATE STOGROUP emp_stogroup
+  USING ('/data/db2/emp_data')
+  VOLUMES ('VOL001', 'VOL002');
+
+CREATE STOGROUP branch_stogroup
+  USING ('/data/db2/branch_data')
+  VOLUMES ('VOL003', 'VOL004');
